@@ -37,6 +37,10 @@ void saveToFile() {
     file.close();
 }
 
+float calculateAverage(const Student& s) {
+    return (s.grade1 + s.grade2 + s.grade3) / 3;
+}
+
 void addStudent() {
     Student s;
     cout << "Student ID: ";
@@ -55,18 +59,47 @@ void addStudent() {
 
     students.push_back(s);
     saveToFile();
-
-    cout << "Student added and saved successfully!\n";
+    cout << "Student added successfully!\n";
 }
 
 void listStudents() {
     cout << "\n--- Student List ---\n";
     for (const auto& s : students) {
-        float avg = (s.grade1 + s.grade2 + s.grade3) / 3;
         cout << "ID: " << s.id
              << " | Name: " << s.name
-             << " | Average: " << avg << endl;
+             << " | Average: " << calculateAverage(s) << endl;
     }
+}
+
+void searchStudent() {
+    int id;
+    cout << "Enter student ID to search: ";
+    cin >> id;
+
+    for (const auto& s : students) {
+        if (s.id == id) {
+            cout << "Found: " << s.name
+                 << " | Average: " << calculateAverage(s) << endl;
+            return;
+        }
+    }
+    cout << "Student not found!\n";
+}
+
+void deleteStudent() {
+    int id;
+    cout << "Enter student ID to delete: ";
+    cin >> id;
+
+    for (auto it = students.begin(); it != students.end(); ++it) {
+        if (it->id == id) {
+            students.erase(it);
+            saveToFile();
+            cout << "Student deleted successfully!\n";
+            return;
+        }
+    }
+    cout << "Student not found!\n";
 }
 
 int main() {
@@ -77,24 +110,22 @@ int main() {
         cout << "\n===== Student Management System =====\n";
         cout << "1. Add Student\n";
         cout << "2. List Students\n";
-        cout << "3. Exit\n";
+        cout << "3. Search Student\n";
+        cout << "4. Delete Student\n";
+        cout << "5. Exit\n";
         cout << "Choice: ";
         cin >> choice;
 
         switch (choice) {
-            case 1:
-                addStudent();
-                break;
-            case 2:
-                listStudents();
-                break;
-            case 3:
-                cout << "Exiting program...\n";
-                break;
-            default:
-                cout << "Invalid choice!\n";
+            case 1: addStudent(); break;
+            case 2: listStudents(); break;
+            case 3: searchStudent(); break;
+            case 4: deleteStudent(); break;
+            case 5: cout << "Exiting...\n"; break;
+            default: cout << "Invalid choice!\n";
         }
-    } while (choice != 3);
+    } while (choice != 5);
 
     return 0;
 }
+
