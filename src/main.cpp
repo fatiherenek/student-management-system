@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <fstream>
 using namespace std;
 
 struct Student {
@@ -11,6 +12,30 @@ struct Student {
 };
 
 vector<Student> students;
+
+void loadFromFile() {
+    ifstream file("data/students.txt");
+    if (!file.is_open()) return;
+
+    Student s;
+    while (file >> s.id) {
+        file.ignore();
+        getline(file, s.name);
+        file >> s.grade1 >> s.grade2 >> s.grade3;
+        students.push_back(s);
+    }
+    file.close();
+}
+
+void saveToFile() {
+    ofstream file("data/students.txt");
+    for (const auto& s : students) {
+        file << s.id << endl;
+        file << s.name << endl;
+        file << s.grade1 << " " << s.grade2 << " " << s.grade3 << endl;
+    }
+    file.close();
+}
 
 void addStudent() {
     Student s;
@@ -29,7 +54,9 @@ void addStudent() {
     cin >> s.grade3;
 
     students.push_back(s);
-    cout << "Student added successfully!\n";
+    saveToFile();
+
+    cout << "Student added and saved successfully!\n";
 }
 
 void listStudents() {
@@ -43,8 +70,9 @@ void listStudents() {
 }
 
 int main() {
-    int choice;
+    loadFromFile();
 
+    int choice;
     do {
         cout << "\n===== Student Management System =====\n";
         cout << "1. Add Student\n";
