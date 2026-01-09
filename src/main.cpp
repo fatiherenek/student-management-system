@@ -1,6 +1,8 @@
 #include <iostream>
 #include <vector>
 #include <fstream>
+#include <string>
+
 using namespace std;
 
 struct Student {
@@ -13,15 +15,25 @@ struct Student {
 
 vector<Student> students;
 
+// File 
 void loadFromFile() {
     ifstream file("data/students.txt");
     if (!file.is_open()) return;
 
     Student s;
-    while (file >> s.id) {
-        file.ignore();
+    string line;
+
+    while (getline(file, line)) {
+        s.id = stoi(line);
         getline(file, s.name);
-        file >> s.grade1 >> s.grade2 >> s.grade3;
+
+        getline(file, line);
+        s.grade1 = stof(line);
+        getline(file, line);
+        s.grade2 = stof(line);
+        getline(file, line);
+        s.grade3 = stof(line);
+
         students.push_back(s);
     }
     file.close();
@@ -32,54 +44,72 @@ void saveToFile() {
     for (const auto& s : students) {
         file << s.id << endl;
         file << s.name << endl;
-        file << s.grade1 << " " << s.grade2 << " " << s.grade3 << endl;
+        file << s.grade1 << endl;
+        file << s.grade2 << endl;
+        file << s.grade3 << endl;
     }
     file.close();
 }
 
-float calculateAverage(const Student& s) {
+// Helpers
+float average(const Student& s) {
     return (s.grade1 + s.grade2 + s.grade3) / 3;
 }
 
+// CRUD 
 void addStudent() {
     Student s;
+    string input;
+
     cout << "Student ID: ";
-    cin >> s.id;
+    getline(cin, input);
+    s.id = stoi(input);
 
     cout << "Student Name: ";
-    cin.ignore();
     getline(cin, s.name);
 
     cout << "Grade 1: ";
-    cin >> s.grade1;
+    getline(cin, input);
+    s.grade1 = stof(input);
+
     cout << "Grade 2: ";
-    cin >> s.grade2;
+    getline(cin, input);
+    s.grade2 = stof(input);
+
     cout << "Grade 3: ";
-    cin >> s.grade3;
+    getline(cin, input);
+    s.grade3 = stof(input);
 
     students.push_back(s);
     saveToFile();
+
     cout << "Student added successfully!\n";
 }
 
 void listStudents() {
+    if (students.empty()) {
+        cout << "No students found.\n";
+        return;
+    }
+
     cout << "\n--- Student List ---\n";
     for (const auto& s : students) {
         cout << "ID: " << s.id
              << " | Name: " << s.name
-             << " | Average: " << calculateAverage(s) << endl;
+             << " | Average: " << average(s) << endl;
     }
 }
 
 void searchStudent() {
-    int id;
-    cout << "Enter student ID to search: ";
-    cin >> id;
+    string input;
+    cout << "Enter ID to search: ";
+    getline(cin, input);
+    int id = stoi(input);
 
     for (const auto& s : students) {
         if (s.id == id) {
-            cout << "Found: " << s.name
-                 << " | Average: " << calculateAverage(s) << endl;
+            cout << "Found -> " << s.name
+                 << " | Average: " << average(s) << endl;
             return;
         }
     }
@@ -87,9 +117,10 @@ void searchStudent() {
 }
 
 void deleteStudent() {
-    int id;
-    cout << "Enter student ID to delete: ";
-    cin >> id;
+    string input;
+    cout << "Enter ID to delete: ";
+    getline(cin, input);
+    int id = stoi(input);
 
     for (auto it = students.begin(); it != students.end(); ++it) {
         if (it->id == id) {
@@ -102,10 +133,13 @@ void deleteStudent() {
     cout << "Student not found!\n";
 }
 
+// Main 
 int main() {
     loadFromFile();
 
+    string input;
     int choice;
+
     do {
         cout << "\n===== Student Management System =====\n";
         cout << "1. Add Student\n";
@@ -114,7 +148,8 @@ int main() {
         cout << "4. Delete Student\n";
         cout << "5. Exit\n";
         cout << "Choice: ";
-        cin >> choice;
+        getline(cin, input);
+        choice = stoi(input);
 
         switch (choice) {
             case 1: addStudent(); break;
@@ -124,6 +159,7 @@ int main() {
             case 5: cout << "Exiting...\n"; break;
             default: cout << "Invalid choice!\n";
         }
+
     } while (choice != 5);
 
     return 0;
